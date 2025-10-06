@@ -4,9 +4,11 @@ import React, { useState } from 'react';
 
 interface ButtonGridProps {
   onButtonClick: (value: string) => void;
+  activeTab?: 'basic' | 'scientific' | 'graphing' | 'converter';
+  theme?: 'light' | 'dark' | 'student';
 }
 
-const ButtonGrid: React.FC<ButtonGridProps> = ({ onButtonClick }) => {
+const ButtonGrid: React.FC<ButtonGridProps> = ({ onButtonClick, activeTab = 'basic', theme = 'student' }) => {
   const [activeButton, setActiveButton] = useState<string | null>(null);
 
   const buttons = [
@@ -76,9 +78,76 @@ const ButtonGrid: React.FC<ButtonGridProps> = ({ onButtonClick }) => {
     onButtonClick(value);
   };
 
-  return (
-    <div className="space-y-4" role="group" aria-label="Calculator buttons">
-      {/* Scientific functions */}
+  const getButtonTheme = (type: 'number' | 'operator' | 'function' | 'special') => {
+    const baseClasses = "font-medium py-3 rounded-xl shadow-lg transition-all duration-200 ease-in-out transform hover:scale-105";
+    
+    switch (theme) {
+      case 'dark':
+        switch (type) {
+          case 'number': return `${baseClasses} bg-gray-700 text-white hover:bg-gray-600`;
+          case 'operator': return `${baseClasses} bg-orange-600 text-white hover:bg-orange-500`;
+          case 'function': return `${baseClasses} bg-blue-600 text-white hover:bg-blue-500`;
+          case 'special': return `${baseClasses} bg-red-600 text-white hover:bg-red-500`;
+        }
+        break;
+      case 'light':
+        switch (type) {
+          case 'number': return `${baseClasses} bg-gray-200 text-gray-800 hover:bg-gray-300`;
+          case 'operator': return `${baseClasses} bg-orange-500 text-white hover:bg-orange-600`;
+          case 'function': return `${baseClasses} bg-blue-500 text-white hover:bg-blue-600`;
+          case 'special': return `${baseClasses} bg-red-500 text-white hover:bg-red-600`;
+        }
+        break;
+      case 'student':
+        switch (type) {
+          case 'number': return `${baseClasses} bg-gradient-to-br from-blue-400 to-blue-600 text-white hover:from-blue-500 hover:to-blue-700`;
+          case 'operator': return `${baseClasses} bg-gradient-to-br from-orange-400 to-red-500 text-white hover:from-orange-500 hover:to-red-600`;
+          case 'function': return `${baseClasses} bg-gradient-to-br from-purple-400 to-pink-500 text-white hover:from-purple-500 hover:to-pink-600`;
+          case 'special': return `${baseClasses} bg-gradient-to-br from-green-400 to-teal-500 text-white hover:from-green-500 hover:to-teal-600`;
+        }
+        break;
+    }
+    return baseClasses;
+  };
+
+  const renderBasicCalculator = () => (
+    <div className="grid grid-cols-4 gap-3">
+      {buttons.map((row, rowIndex) => 
+        row.map((btn, colIndex) => {
+          const isEquals = btn === '=';
+          const isZero = btn === '0';
+          const isOperator = ['/', '*', '-', '+'].includes(btn);
+          const isClear = ['AC', 'C', '±'].includes(btn);
+          const isNumber = /^[0-9]$/.test(btn) || btn === '00';
+          
+          let buttonType: 'number' | 'operator' | 'function' | 'special' = 'number';
+          if (isOperator) buttonType = 'operator';
+          else if (isClear) buttonType = 'special';
+          else if (isEquals) buttonType = 'function';
+          
+          return (
+            <button
+              key={`btn-${rowIndex}-${colIndex}`}
+              onClick={() => handleButtonClick(btn)}
+              className={`
+                ${isZero ? 'col-span-2' : 'col-span-1'}
+                ${getButtonTheme(buttonType)}
+                ${activeButton === btn ? 'scale-95 ring-4 ring-yellow-300' : ''}
+                text-xl font-bold
+              `}
+              aria-label={getAriaLabel(btn)}
+            >
+              {btn}
+            </button>
+          );
+        })
+      )}
+    </div>
+  );
+
+  const renderScientificCalculator = () => (
+    <div className="space-y-4">
+      {/* Scientific Functions */}
       <div className="grid grid-cols-4 gap-2">
         {scientificButtons.map((row, rowIndex) => 
           row.map((btn, colIndex) => (
@@ -86,9 +155,9 @@ const ButtonGrid: React.FC<ButtonGridProps> = ({ onButtonClick }) => {
               key={`sci-${rowIndex}-${colIndex}`}
               onClick={() => handleButtonClick(btn)}
               className={`
-                bg-blue-100 text-blue-800 font-medium py-2 text-sm rounded-lg shadow
-                transition-all duration-100 ease-in-out
-                ${activeButton === btn ? 'scale-95 bg-blue-300' : 'hover:bg-blue-200'}
+                ${getButtonTheme('function')}
+                ${activeButton === btn ? 'scale-95 ring-4 ring-yellow-300' : ''}
+                text-sm font-bold
               `}
               aria-label={getAriaLabel(btn)}
             >
@@ -97,51 +166,49 @@ const ButtonGrid: React.FC<ButtonGridProps> = ({ onButtonClick }) => {
           ))
         )}
       </div>
+      
+      {/* Basic Calculator */}
+      {renderBasicCalculator()}
+    </div>
+  );
 
-      {/* Basic operations and numbers */}
-      <div className="grid grid-cols-4 gap-2">
-        {buttons.map((row, rowIndex) => 
-          row.map((btn, colIndex) => {
-            const isEquals = btn === '=';
-            const isZero = btn === '0';
-            const isOperator = ['/', '*', '-', '+'].includes(btn);
-            const isClear = ['AC', 'C', '±'].includes(btn);
-            
-            return (
-              <button
-                key={`btn-${rowIndex}-${colIndex}`}
-                onClick={() => handleButtonClick(btn)}
-                className={`
-                  ${isEquals ? 'col-span-1' : isZero ? 'col-span-2' : 'col-span-1'}
-                  ${isOperator 
-                    ? 'bg-orange-500 text-white hover:bg-orange-600' 
-                    : isClear
-                    ? 'bg-gray-300 text-gray-700 hover:bg-gray-400'
-                    : 'bg-gray-100 hover:bg-gray-200 text-gray-800'}
-                  font-medium py-3 rounded-lg shadow text-lg
-                  transition-all duration-100 ease-in-out
-                  ${activeButton === btn ? 'scale-95' : ''}
-                `}
-                aria-label={getAriaLabel(btn)}
-              >
-                {btn}
-              </button>
-            );
-          })
-        )}
-      </div>
-
-      {/* Algebraic/Geometric functions */}
+  const renderGraphingCalculator = () => (
+    <div className="space-y-4">
+      {/* Graphing Functions */}
       <div className="grid grid-cols-3 gap-2">
-        {algebraicButtons.map((row, rowIndex) => 
+        {[
+          ['f(x)', 'g(x)', 'h(x)'],
+          ['plot', 'zoom', 'trace'],
+          ['table', 'calc', 'graph']
+        ].map((row, rowIndex) => 
           row.map((btn, colIndex) => (
             <button
-              key={`alg-${rowIndex}-${colIndex}`}
+              key={`graph-${rowIndex}-${colIndex}`}
               onClick={() => handleButtonClick(btn)}
               className={`
-                bg-purple-100 text-purple-800 font-medium py-2 text-sm rounded-lg shadow
-                transition-all duration-100 ease-in-out
-                ${activeButton === btn ? 'scale-95 bg-purple-300' : 'hover:bg-purple-200'}
+                ${getButtonTheme('function')}
+                ${activeButton === btn ? 'scale-95 ring-4 ring-yellow-300' : ''}
+                text-sm font-bold
+              `}
+              aria-label={btn}
+            >
+              {btn}
+            </button>
+          ))
+        )}
+      </div>
+      
+      {/* Scientific Functions */}
+      <div className="grid grid-cols-4 gap-2">
+        {scientificButtons.slice(0, 2).map((row, rowIndex) => 
+          row.map((btn, colIndex) => (
+            <button
+              key={`sci-${rowIndex}-${colIndex}`}
+              onClick={() => handleButtonClick(btn)}
+              className={`
+                ${getButtonTheme('function')}
+                ${activeButton === btn ? 'scale-95 ring-4 ring-yellow-300' : ''}
+                text-sm font-bold
               `}
               aria-label={getAriaLabel(btn)}
             >
@@ -150,6 +217,50 @@ const ButtonGrid: React.FC<ButtonGridProps> = ({ onButtonClick }) => {
           ))
         )}
       </div>
+      
+      {/* Basic Calculator */}
+      {renderBasicCalculator()}
+    </div>
+  );
+
+  const renderConverter = () => (
+    <div className="space-y-4">
+      {/* Unit Conversion */}
+      <div className="grid grid-cols-2 gap-2">
+        {[
+          ['°C→°F', '°F→°C'],
+          ['m→ft', 'ft→m'],
+          ['kg→lb', 'lb→kg'],
+          ['L→gal', 'gal→L']
+        ].map((row, rowIndex) => 
+          row.map((btn, colIndex) => (
+            <button
+              key={`conv-${rowIndex}-${colIndex}`}
+              onClick={() => handleButtonClick(btn)}
+              className={`
+                ${getButtonTheme('special')}
+                ${activeButton === btn ? 'scale-95 ring-4 ring-yellow-300' : ''}
+                text-sm font-bold
+              `}
+              aria-label={btn}
+            >
+              {btn}
+            </button>
+          ))
+        )}
+      </div>
+      
+      {/* Basic Calculator */}
+      {renderBasicCalculator()}
+    </div>
+  );
+
+  return (
+    <div className="space-y-4" role="group" aria-label="Calculator buttons">
+      {activeTab === 'basic' && renderBasicCalculator()}
+      {activeTab === 'scientific' && renderScientificCalculator()}
+      {activeTab === 'graphing' && renderGraphingCalculator()}
+      {activeTab === 'converter' && renderConverter()}
     </div>
   );
 };

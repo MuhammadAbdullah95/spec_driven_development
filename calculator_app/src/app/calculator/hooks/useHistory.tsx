@@ -4,24 +4,29 @@ import { HistoryEntry } from '@/types/calculator';
 const HISTORY_KEY = 'calculator_history';
 
 export const useHistory = (limit: number = 50) => {
-  const [history, setHistory] = useState<HistoryEntry[]>(() => {
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Load history from localStorage after component mounts (client-side only)
+  useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
         const saved = localStorage.getItem(HISTORY_KEY);
         if (saved) {
           const parsed = JSON.parse(saved);
           // Convert timestamp strings back to Date objects
-          return parsed.map((entry: any) => ({
+          const loadedHistory = parsed.map((entry: any) => ({
             ...entry,
             timestamp: new Date(entry.timestamp)
           }));
+          setHistory(loadedHistory);
         }
       } catch (error) {
         console.error('Error loading history from localStorage:', error);
       }
+      setIsLoaded(true);
     }
-    return [];
-  });
+  }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
