@@ -1,0 +1,174 @@
+/* 
+ * Enhanced theme variables for light/dark mode
+ * Based on UI & UX Design Guidelines from plan
+ */
+
+/* Light theme (default) */
+:root {
+  /* Base colors */
+  --bg-color: #f8fafc;
+  --text-color: #1e293b;
+  --text-secondary: #64748b;
+  --text-light: #94a3b8;
+  
+  /* Primary & accent colors */
+  --primary-color: #3b82f6;
+  --primary-color-hover: #2563eb;
+  --accent-color: #6366f1;
+  --accent-color-hover: #4f46e5;
+  
+  /* Status colors */
+  --success-color: #10b981;
+  --success-color-hover: #059669;
+  --danger-color: #ef4444;
+  --danger-color-hover: #dc2626;
+  --warning-color: #f59e0b;
+  --warning-color-hover: #d97706;
+  --info-color: #0ea5e9;
+  --info-color-hover: #0284c7;
+  --cancel-color: #6b7280;
+  --cancel-color-hover: #4b5563;
+  
+  /* Backgrounds */
+  --bg-card: #ffffff;
+  --bg-card-hover: #f1f5f9;
+  --bg-overlay: rgba(255, 255, 255, 0.8);
+  --bg-danger-light: #fee2e2;
+  --completed-task-bg: #f8fafc;
+  --drag-over-bg: #e0f2fe;
+  
+  /* Borders */
+  --border-color: #e2e8f0;
+  --border-color-hover: #cbd5e1;
+  --border-radius: 12px;
+  --border-radius-sm: 6px;
+  
+  /* Buttons */
+  --btn-bg: #f1f5f9;
+  --btn-hover-bg: #e2e8f0;
+  --btn-hover-border: #cbd5e1;
+  --btn-active-bg: #3b82f6;
+  --btn-active-text: #ffffff;
+  
+  /* Inputs */
+  --input-bg: #ffffff;
+  --input-border: #cbd5e1;
+  --input-focus: #3b82f6;
+  
+  /* Focus */
+  --focus-color: #3b82f6;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.05);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,0.09), 0 6px 6px rgba(0,0,0,0.06);
+}
+
+/* Dark theme */
+[data-theme='dark'] {
+  /* Base colors */
+  --bg-color: #0f172a;
+  --text-color: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-light: #64748b;
+  
+  /* Primary & accent colors */
+  --primary-color: #60a5fa;
+  --primary-color-hover: #3b82f6;
+  --accent-color: #818cf8;
+  --accent-color-hover: #6366f1;
+  
+  /* Status colors */
+  --success-color: #34d399;
+  --success-color-hover: #10b981;
+  --danger-color: #f87171;
+  --danger-color-hover: #ef4444;
+  --warning-color: #fbbf24;
+  --warning-color-hover: #f59e0b;
+  --info-color: #7dd3fc;
+  --info-color-hover: #38bdf8;
+  --cancel-color: #9ca3af;
+  --cancel-color-hover: #6b7280;
+  
+  /* Backgrounds */
+  --bg-card: #1e293b;
+  --bg-card-hover: #334155;
+  --bg-overlay: rgba(15, 23, 42, 0.8);
+  --bg-danger-light: #450a0a;
+  --completed-task-bg: #1e293b;
+  --drag-over-bg: #1e3a8a;
+  
+  /* Borders */
+  --border-color: #334155;
+  --border-color-hover: #475569;
+  --border-radius: 12px;
+  --border-radius-sm: 6px;
+  
+  /* Buttons */
+  --btn-bg: #334155;
+  --btn-hover-bg: #475569;
+  --btn-hover-border: #64748b;
+  --btn-active-bg: #60a5fa;
+  --btn-active-text: #0f172a;
+  
+  /* Inputs */
+  --input-bg: #1e293b;
+  --input-border: #475569;
+  --input-focus: #60a5fa;
+  
+  /* Focus */
+  --focus-color: #60a5fa;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.2);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,0.3), 0 6px 6px rgba(0,0,0,0.2);
+}
+
+/* Apply theme variables */
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Task item completed state */
+.task-item.completed {
+  background-color: var(--completed-task-bg);
+  opacity: 0.9;
+}
+
+/* Drag over state */
+.drag-over {
+  background-color: var(--drag-over-bg) !important;
+  border-left: 4px solid var(--accent-color) !important;
+}
+
+/* Card-like containers */
+.app-container {
+  background-color: var(--bg-card);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+/* Input fields */
+.task-input, .task-edit-input {
+  border: 2px solid var(--input-border) !important;
+  background-color: var(--input-bg) !important;
+  color: var(--text-color) !important;
+}
+
+.task-input:focus, .task-edit-input:focus {
+  border-color: var(--input-focus) !important;
+}
+
+/* Filter buttons active state */
+.filter-btn.active {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Dark theme specific adjustments */
+[data-theme='dark'] .filter-btn.active {
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2) !important;
+}
