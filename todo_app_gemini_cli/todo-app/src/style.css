@@ -1,0 +1,212 @@
+:root {
+  --bg-color-light: #f0f2f5;
+  --text-color-light: #333;
+  --card-bg-light: #ffffff;
+  --card-shadow-light: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --primary-color: #6200ee;
+  --primary-hover-color: #3700b3;
+  --secondary-color: #03dac6;
+  --secondary-hover-color: #018786;
+  --input-bg-light: #f9f9f9;
+  --input-border-light: #e0e0e0;
+  --completed-text-light: #888;
+  --selected-border-light: #6200ee;
+  --delete-button-bg: #e53935;
+  --delete-button-hover-bg: #c62828;
+  --empty-state-color: #888;
+}
+
+body.dark {
+  --bg-color-light: #121212;
+  --text-color-light: #e0e0e0;
+  --card-bg-light: #1e1e1e;
+  --card-shadow-light: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --primary-color: #bb86fc;
+  --primary-hover-color: #3700b3;
+  --secondary-color: #03dac6;
+  --secondary-hover-color: #018786;
+  --input-bg-light: #2c2c2c;
+  --input-border-light: #444;
+  --completed-text-light: #a0a0a0;
+  --selected-border-light: #bb86fc;
+  --delete-button-bg: #cf6679;
+  --delete-button-hover-bg: #b00020;
+  --empty-state-color: #a0a0a0;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 20px;
+  background-color: var(--bg-color-light);
+  color: var(--text-color-light);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  line-height: 1.6;
+}
+
+#app {
+  max-width: 600px;
+  margin: 40px auto;
+  background-color: var(--card-bg-light);
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: var(--card-shadow-light);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+h1 {
+  text-align: center;
+  color: var(--text-color-light);
+  margin-bottom: 20px;
+  font-size: 2.5em;
+  font-weight: 700;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid var(--input-border-light);
+  border-radius: 8px;
+  font-size: 1em;
+  background-color: var(--input-bg-light);
+  color: var(--text-color-light);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  box-sizing: border-box; /* Ensure padding doesn't increase width */
+}
+
+input[type="text"]:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(98, 0, 238, 0.2);
+  outline: none;
+}
+
+.filter-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.filter-buttons button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--primary-color);
+  color: white;
+  cursor: pointer;
+  font-size: 0.9em;
+  font-weight: 500;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.filter-buttons button:hover {
+  background-color: var(--primary-hover-color);
+  transform: translateY(-2px);
+}
+
+.filter-buttons button.active {
+  background-color: var(--secondary-color);
+}
+
+.filter-buttons button.active:hover {
+  background-color: var(--secondary-hover-color);
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+li {
+  background-color: var(--input-bg-light);
+  padding: 12px 15px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+  cursor: grab;
+}
+
+li:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+li.selected {
+  border: 2px solid var(--selected-border-light);
+  box-shadow: 0 4px 15px rgba(98, 0, 238, 0.3);
+}
+
+li.completed span {
+  text-decoration: line-through;
+  color: var(--completed-text-light);
+}
+
+li input[type="checkbox"] {
+  margin-right: 10px;
+  transform: scale(1.2);
+  cursor: pointer;
+}
+
+li .destroy {
+  background-color: var(--delete-button-bg);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  font-size: 0.9em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  opacity: 0; /* Hidden by default */
+  margin-left: 10px;
+}
+
+li:hover .destroy {
+  opacity: 1; /* Show on hover */
+  transform: scale(1.1);
+}
+
+li .destroy:hover {
+  background-color: var(--delete-button-hover-bg);
+  transform: scale(1.2);
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--empty-state-color);
+  padding: 30px;
+  font-style: italic;
+  font-size: 1.1em;
+}
+
+.theme-toggle-button {
+  display: block;
+  width: 150px;
+  margin: 20px auto 0;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--secondary-color);
+  color: var(--text-color-light);
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: 500;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.theme-toggle-button:hover {
+  background-color: var(--secondary-hover-color);
+  transform: translateY(-2px);
+}
