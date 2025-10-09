@@ -1,0 +1,294 @@
+/* ForecastDisplay.css */
+.forecast-display {
+  margin-top: 2rem;
+}
+
+.forecast-display h3 {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: white;
+  text-align: center;
+}
+
+.forecast-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.forecast-card {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.forecast-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.forecast-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.forecast-date {
+  display: flex;
+  flex-direction: column;
+}
+
+.date-label {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2d3436;
+  margin-bottom: 0.25rem;
+}
+
+.day-label {
+  font-size: 0.9rem;
+  color: #636e72;
+  font-weight: 500;
+}
+
+.forecast-icon {
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+.forecast-condition {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.condition-main {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #2d3436;
+  margin-bottom: 0.25rem;
+  text-transform: capitalize;
+}
+
+.condition-description {
+  font-size: 0.9rem;
+  color: #636e72;
+  text-transform: capitalize;
+}
+
+.forecast-temperature {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.temp-range {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.temp-max {
+  color: #e17055;
+}
+
+.temp-min {
+  color: #74b9ff;
+  opacity: 0.8;
+}
+
+.temp-separator {
+  color: #636e72;
+  font-weight: 400;
+}
+
+.temp-unit {
+  font-size: 1rem;
+  color: #636e72;
+  font-weight: 500;
+}
+
+/* Loading State */
+.forecast-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem 1rem;
+  color: white;
+}
+
+.forecast-loading .loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top: 3px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+.forecast-loading p {
+  margin: 0;
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+/* Error State */
+.forecast-error {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: rgba(231, 76, 60, 0.1);
+  border-radius: 12px;
+  border: 1px solid rgba(231, 76, 60, 0.3);
+  color: white;
+}
+
+.error-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.error-content h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.error-content p {
+  margin: 0;
+  opacity: 0.9;
+  line-height: 1.5;
+}
+
+/* Empty State */
+.forecast-empty {
+  text-align: center;
+  padding: 2rem;
+  color: white;
+  opacity: 0.8;
+}
+
+.forecast-empty p {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+/* Constitutional Note */
+.forecast-note {
+  background: rgba(116, 185, 255, 0.15);
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(116, 185, 255, 0.3);
+  color: white;
+  text-align: center;
+}
+
+.forecast-note p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.forecast-note strong {
+  color: #74b9ff;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .forecast-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin: 0 0.5rem 1.5rem;
+  }
+  
+  .forecast-card {
+    padding: 1rem;
+  }
+  
+  .forecast-header {
+    margin-bottom: 0.75rem;
+  }
+  
+  .forecast-icon {
+    font-size: 2rem;
+  }
+  
+  .condition-main {
+    font-size: 1.1rem;
+  }
+  
+  .temp-range {
+    font-size: 1.3rem;
+  }
+  
+  .forecast-error {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.75rem;
+    margin: 0 0.5rem;
+  }
+  
+  .forecast-note {
+    margin: 0 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .forecast-display h3 {
+    font-size: 1.3rem;
+  }
+  
+  .forecast-card {
+    padding: 0.75rem;
+    margin: 0 0.25rem;
+  }
+  
+  .date-label {
+    font-size: 1rem;
+  }
+  
+  .day-label {
+    font-size: 0.8rem;
+  }
+  
+  .forecast-icon {
+    font-size: 1.8rem;
+  }
+  
+  .condition-main {
+    font-size: 1rem;
+  }
+  
+  .condition-description {
+    font-size: 0.8rem;
+  }
+  
+  .temp-range {
+    font-size: 1.2rem;
+  }
+  
+  .forecast-note {
+    margin: 0 0.25rem;
+    padding: 0.75rem;
+  }
+  
+  .forecast-note p {
+    font-size: 0.8rem;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
