@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  DollarSign, 
-  Calendar, 
-  FileText, 
+import {
+  DollarSign,
+  Calendar,
+  FileText,
   Tag,
-  ShoppingBag, 
-  Car, 
-  Coffee, 
-  Home, 
-  Heart, 
+  ShoppingBag,
+  Car,
+  Coffee,
+  Home,
+  Heart,
   Gamepad2,
   Check,
   Sparkles,
-  Loader2
+  Loader2,
+  X
 } from 'lucide-react';
 import Input from '../ui/Input';
 import Button from '../ui/Button';

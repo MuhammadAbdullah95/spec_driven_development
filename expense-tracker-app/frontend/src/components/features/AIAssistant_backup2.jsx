@@ -81,14 +81,11 @@ const AIAssistant = ({
   const parseExpenseFromMessage = (message) => {
     const lowerMessage = message.toLowerCase();
 
-    // Check if it's an expense add command - Enhanced patterns to handle "590$" format
+    // Check if it's an expense add command
     const expensePatterns = [
-      // "add 590$ for lunch" or "add $590 for lunch" (dollar sign before or after)
-      /(?:add|spent|paid|bought)\s+\$?(\d+(?:\.\d{2})?)\$?\s+(?:for|on)\s+(.+)/i,
-      // "590$ for lunch" or "$590 for lunch" (without action verb)
-      /^\$?(\d+(?:\.\d{2})?)\$?\s+(?:for|on)\s+(.+)/i,
-      // "lunch 590$" or "lunch $590" (description first)
-      /^(.+?)\s+\$?(\d+(?:\.\d{2})?)\$?$/i,
+      /(?:add|spent|paid|bought)\s+\$?(\d+(?:\.\d{2})?)\s+(?:for|on)\s+(.+?)(?:\s+yesterday|\s+today|$)/i,
+      /\$?(\d+(?:\.\d{2})?)\s+(?:for|on)\s+(.+?)(?:\s+yesterday|\s+today|$)/i,
+      /(?:add|spent|paid)\s+(.+?)\s+\$?(\d+(?:\.\d{2})?)/i,
     ];
 
     let amount = null;
@@ -103,16 +100,13 @@ const AIAssistant = ({
     }
 
     // Try to match patterns
-    for (let i = 0; i < expensePatterns.length; i++) {
-      const pattern = expensePatterns[i];
+    for (const pattern of expensePatterns) {
       const match = message.match(pattern);
       if (match) {
-        if (i === 2) {
-          // Third pattern: description first, amount second
-          description = match[1];
-          amount = match[2];
-        } else {
-          // First two patterns: amount first, description second
+        if (pattern.toString().includes('spent|paid|bought')) {
+          amount = match[1];
+          description = match[2];
+        } else if (match[2] && match[1]) {
           amount = match[1];
           description = match[2];
         }
@@ -124,9 +118,9 @@ const AIAssistant = ({
 
     // Try to infer category from description
     const categoryKeywords = {
-      'Food': ['lunch', 'dinner', 'breakfast', 'food', 'meal', 'restaurant', 'coffee', 'groceries', 'snack', 'eat', 'launch'],
+      'Food': ['lunch', 'dinner', 'breakfast', 'food', 'meal', 'restaurant', 'coffee', 'groceries', 'snack', 'eat'],
       'Transport': ['gas', 'fuel', 'uber', 'taxi', 'bus', 'train', 'parking', 'ride', 'transport', 'car'],
-      'Entertainment': ['movie', 'cinema', 'game', 'concert', 'show', 'ticket', 'entertainment', 'streaming', 'party', 'event'],
+      'Entertainment': ['movie', 'cinema', 'game', 'concert', 'show', 'ticket', 'entertainment', 'streaming'],
       'Bills': ['bill', 'rent', 'utility', 'internet', 'phone', 'electricity', 'water', 'insurance'],
       'Shopping': ['shopping', 'clothes', 'clothing', 'store', 'bought', 'purchase', 'electronics'],
       'Health': ['doctor', 'hospital', 'medicine', 'pharmacy', 'health', 'medical', 'gym', 'fitness']
@@ -175,13 +169,21 @@ const AIAssistant = ({
           id: Date.now().toString()
         });
 
-        // Show concise confirmation message
+        // Show confirmation message
         const confirmationMessage = {
           id: Date.now() + 1,
           type: 'assistant',
-          content: `✅ **Added:** $${expenseData.amount.toFixed(2)} for ${expenseData.description} (${expenseData.category})
+          content: `## ✅ Expense Added Successfully!
 
-What else can I help with?`,
+**Details:**
+• **Amount:** $${expenseData.amount.toFixed(2)}
+• **Category:** ${expenseData.category}
+• **Description:** ${expenseData.description}
+• **Date:** ${expenseData.date}
+
+Your expense has been recorded and added to your tracking dashboard. You can view it in your expense list.
+
+*Is there anything else I can help you with?*`,
           timestamp: new Date()
         };
 
@@ -196,30 +198,18 @@ What else can I help with?`,
       const savedSettings = localStorage.getItem('expenseTrackerSettings');
       const settings = savedSettings ? JSON.parse(savedSettings) : {};
 
-      // Get last 10 messages for conversation context (excluding initial welcome message)
-      const recentMessages = messages
-        .slice(-10)
-        .filter(m => m.id !== 1)
-        .map(m => ({
-          role: m.type === 'user' ? 'user' : 'assistant',
-          content: m.content
-        }));
-
       // Prepare expense data for AI context
       const contextData = {
         expenses: state.expenses || [],
         categories: state.categories || [],
-        settings: settings,
-        conversationHistory: recentMessages
+        settings: settings
       };
 
       console.log('AI Assistant: Generating response for:', message);
       console.log('AI Assistant: Context data:', {
         expenseCount: contextData.expenses.length,
         categoryCount: contextData.categories.length,
-        hasSettings: Object.keys(settings).length > 0,
-        conversationLength: recentMessages.length,
-        settings: settings  // Log the actual settings
+        hasSettings: Object.keys(settings).length > 0
       });
 
       // Generate AI response using the AI service
