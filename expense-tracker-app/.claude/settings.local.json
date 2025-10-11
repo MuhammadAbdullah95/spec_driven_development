@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell:*)",
+      "Read(//g/spec_driven_development/specs/004-a-web-or/**)",
+      "Read(//g/spec_driven_development/specs/**)",
+      "Bash(dir /b src)",
+      "Bash(dir:*)",
+      "Bash(npm run dev:*)",
+      "Read(//g/spec_driven_development/**)",
+      "WebSearch",
+      "WebFetch(domain:www.npmjs.com)",
+      "Bash(rm:*)",
+      "Bash(touch:*)",
+      "Bash(cat:*)",
+      "Bash(cp:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

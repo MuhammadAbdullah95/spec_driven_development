@@ -1,0 +1,73 @@
+/* Basic styles for AI components */
+.ai-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.ai-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+}
+
+.ai-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.ai-button {
+  padding: 0.5rem 1rem;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.ai-button:hover {
+  background-color: #2563eb;
+}
+
+.ai-button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.confidence-high {
+  color: #059669;
+}
+
+.confidence-medium {
+  color: #d97706;
+}
+
+.confidence-low {
+  color: #dc2626;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .ai-card {
+    background: #1f2937;
+    border-color: #374151;
+    color: white;
+  }
+  
+  .ai-input {
+    background: #374151;
+    border-color: #4b5563;
+    color: white;
+  }
+  
+  .ai-input::placeholder {
+    color: #9ca3af;
+  }
+}
