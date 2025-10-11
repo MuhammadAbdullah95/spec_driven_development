@@ -1,0 +1,138 @@
+/* Responsive Design Styles */
+
+/* Mobile-first approach */
+@media (max-width: 768px) {
+  /* Dashboard */
+  .dashboard-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+
+  .dashboard-actions {
+    width: 100%;
+    margin-top: 1rem;
+  }
+
+  .dashboard-actions button {
+    width: 100%;
+  }
+
+  /* Summary Cards */
+  .summary-cards {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Forms */
+  .expense-form {
+    padding: 1rem !important;
+  }
+
+  /* Expense List Items */
+  .expense-list-item {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+
+  .expense-list-item-actions {
+    width: 100%;
+    margin-top: 1rem;
+    justify-content: flex-start !important;
+  }
+
+  /* Category Manager */
+  .category-form {
+    flex-direction: column !important;
+  }
+
+  .category-form input,
+  .category-form button {
+    width: 100% !important;
+  }
+
+  /* Analytics Table */
+  .analytics-table {
+    font-size: 0.875rem;
+  }
+
+  .analytics-table th,
+  .analytics-table td {
+    padding: 0.5rem !important;
+  }
+
+  /* Charts */
+  .chart-container {
+    max-width: 100% !important;
+  }
+
+  .chart-toggle {
+    flex-direction: column !important;
+    width: 100%;
+  }
+
+  .chart-toggle button {
+    width: 100%;
+  }
+}
+
+/* Tablet */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .summary-cards {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .dashboard-actions {
+    flex-wrap: wrap;
+  }
+}
+
+/* Print Styles */
+@media print {
+  button {
+    display: none !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  * {
+    color: black !important;
+    background: white !important;
+  }
+}
+
+/* Accessibility */
+*:focus {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  button {
+    border-width: 2px !important;
+  }
+
+  input,
+  select,
+  textarea {
+    border-width: 2px !important;
+  }
+}
