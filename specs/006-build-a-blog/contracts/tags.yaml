@@ -1,0 +1,258 @@
+openapi: 3.0.3
+info:
+  title: Blog Management API - Tags
+  version: 1.0.0
+  description: Tag management endpoints
+
+paths:
+  /api/v1/tags:
+    get:
+      summary: List all tags
+      description: Retrieve list of all tags with optional post count
+      operationId: listTags
+      tags:
+        - Tags
+      parameters:
+        - name: include_count
+          in: query
+          description: Include post count for each tag
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: List of tags
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TagResponse'
+              example:
+                - id: 1
+                  name: "python"
+                  created_at: "2025-10-01T10:00:00Z"
+                  post_count: 25
+                - id: 2
+                  name: "fastapi"
+                  created_at: "2025-10-02T11:00:00Z"
+                  post_count: 15
+      security:
+        - BearerAuth: []
+        - {}
+
+  /api/v1/tags/{tag_id}:
+    get:
+      summary: Get tag by ID
+      description: Retrieve single tag details
+      operationId: getTag
+      tags:
+        - Tags
+      parameters:
+        - name: tag_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Tag details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagResponse'
+        '404':
+          description: Tag not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - BearerAuth: []
+        - {}
+
+  /api/v1/tags/{tag_id}/posts:
+    get:
+      summary: Get posts by tag
+      description: Retrieve paginated list of posts with specified tag
+      operationId: getPostsByTag
+      tags:
+        - Tags
+      parameters:
+        - name: tag_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: status
+          in: query
+          description: Filter by status (defaults to published for unauthenticated)
+          schema:
+            type: string
+            enum: [draft, published, archived]
+            default: published
+      responses:
+        '200':
+          description: Posts with tag
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostListResponse'
+        '404':
+          description: Tag not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - BearerAuth: []
+        - {}
+
+components:
+  schemas:
+    TagResponse:
+      type: object
+      required:
+        - id
+        - name
+        - created_at
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          description: Normalized tag name (lowercase, trimmed)
+        created_at:
+          type: string
+          format: date-time
+        post_count:
+          type: integer
+          description: Number of posts with this tag (only if include_count=true)
+          nullable: true
+
+    PostListResponse:
+      type: object
+      required:
+        - items
+        - pagination
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PostSummary'
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+
+    PostSummary:
+      type: object
+      required:
+        - id
+        - author
+        - title
+        - excerpt
+        - status
+        - publication_date
+        - tags
+      properties:
+        id:
+          type: integer
+        author:
+          $ref: '#/components/schemas/AuthorInfo'
+        title:
+          type: string
+        excerpt:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [draft, published, archived]
+        publication_date:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagInfo'
+
+    AuthorInfo:
+      type: object
+      required:
+        - id
+        - username
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        full_name:
+          type: string
+          nullable: true
+
+    TagInfo:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+
+    PaginationInfo:
+      type: object
+      required:
+        - page
+        - page_size
+        - total_items
+        - total_pages
+      properties:
+        page:
+          type: integer
+        page_size:
+          type: integer
+        total_items:
+          type: integer
+        total_pages:
+          type: integer
+        has_next:
+          type: boolean
+        has_previous:
+          type: boolean
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - details
+        - request_id
+      properties:
+        error:
+          type: string
+        details:
+          type: object
+        request_id:
+          type: string
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

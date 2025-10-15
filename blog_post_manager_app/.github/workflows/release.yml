@@ -1,0 +1,64 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Generate changelog
+      id: changelog
+      uses: metcalfc/changelog-generator@v4.1.0
+      with:
+        myToken: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        body: |
+          ## What's Changed
+          ${{ steps.changelog.outputs.changelog }}
+
+          ## Docker Images
+
+          Pull the Docker image for this release:
+          ```bash
+          docker pull ghcr.io/${{ github.repository }}:${{ github.ref_name }}
+          ```
+
+          ## Installation
+
+          ### Using Docker Compose
+          ```bash
+          wget https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/docker-compose.yml
+          docker-compose up -d
+          ```
+
+          ### Using Kubernetes
+          ```bash
+          kubectl apply -f https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/k8s/
+          ```
+
+          ## Documentation
+
+          - [API Documentation](https://github.com/${{ github.repository }}/blob/${{ github.ref_name }}/README.md)
+          - [Deployment Guide](https://github.com/${{ github.repository }}/blob/${{ github.ref_name }}/k8s/README.md)
+          - [Testing Guide](https://github.com/${{ github.repository }}/blob/${{ github.ref_name }}/tests/README.md)
+        draft: false
+        prerelease: false
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

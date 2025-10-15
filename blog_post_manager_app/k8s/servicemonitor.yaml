@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: blog-api-metrics
+  namespace: blog-api
+  labels:
+    app: blog-api
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: blog-api
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s

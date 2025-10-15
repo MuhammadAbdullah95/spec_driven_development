@@ -1,0 +1,274 @@
+openapi: 3.0.3
+info:
+  title: Blog Management API - Authentication
+  version: 1.0.0
+  description: Authentication endpoints for user login and token management
+
+paths:
+  /api/v1/auth/login:
+    post:
+      summary: User login
+      description: Authenticate user with email and password, return access and refresh tokens
+      operationId: login
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              email: "author@example.com"
+              password: "securePassword123"
+      responses:
+        '200':
+          description: Successful authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+              example:
+                access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                refresh_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                token_type: "bearer"
+                expires_in: 900
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Invalid email or password"
+                details: {}
+                request_id: "req_12345abcde"
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /api/v1/auth/refresh:
+    post:
+      summary: Refresh access token
+      description: Generate new access token using refresh token
+      operationId: refreshToken
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+            example:
+              refresh_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+      responses:
+        '200':
+          description: New access token generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          description: Invalid or expired refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/auth/register:
+    post:
+      summary: Register new user
+      description: Create new author account
+      operationId: register
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+            example:
+              email: "newauthor@example.com"
+              username: "newauthor"
+              password: "securePassword123"
+              full_name: "New Author"
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '409':
+          description: User already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "User with this email already exists"
+                details: {"field": "email"}
+                request_id: "req_12345abcde"
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+components:
+  schemas:
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: User email address
+        password:
+          type: string
+          format: password
+          minLength: 8
+          description: User password
+
+    RegisterRequest:
+      type: object
+      required:
+        - email
+        - username
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        username:
+          type: string
+          minLength: 3
+          maxLength: 100
+        password:
+          type: string
+          format: password
+          minLength: 8
+        full_name:
+          type: string
+          maxLength: 255
+
+    RefreshRequest:
+      type: object
+      required:
+        - refresh_token
+      properties:
+        refresh_token:
+          type: string
+          description: Refresh token from login response
+
+    TokenResponse:
+      type: object
+      required:
+        - access_token
+        - refresh_token
+        - token_type
+        - expires_in
+      properties:
+        access_token:
+          type: string
+          description: JWT access token (15 min expiry)
+        refresh_token:
+          type: string
+          description: JWT refresh token (7 day expiry)
+        token_type:
+          type: string
+          enum: [bearer]
+          description: Token type (always "bearer")
+        expires_in:
+          type: integer
+          description: Access token expiry in seconds (900 for 15 min)
+
+    UserResponse:
+      type: object
+      required:
+        - id
+        - email
+        - username
+        - is_active
+        - created_at
+      properties:
+        id:
+          type: integer
+          description: User ID
+        email:
+          type: string
+          format: email
+        username:
+          type: string
+        full_name:
+          type: string
+          nullable: true
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - details
+        - request_id
+      properties:
+        error:
+          type: string
+          description: Error message
+        details:
+          type: object
+          description: Additional error details
+        request_id:
+          type: string
+          description: Request correlation ID
+
+    ValidationError:
+      type: object
+      required:
+        - error
+        - details
+        - request_id
+      properties:
+        error:
+          type: string
+          example: "Validation failed"
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              loc:
+                type: array
+                items:
+                  type: string
+                description: Field path
+              msg:
+                type: string
+                description: Error message
+              type:
+                type: string
+                description: Error type
+        request_id:
+          type: string
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

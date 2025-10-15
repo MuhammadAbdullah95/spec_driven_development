@@ -1,0 +1,221 @@
+openapi: 3.0.3
+info:
+  title: Blog Management API - Search & Filtering
+  version: 1.0.0
+  description: Advanced search and filtering endpoints for blog posts
+
+paths:
+  /api/v1/posts/search:
+    get:
+      summary: Search and filter posts
+      description: Full-text search across posts with multiple filter dimensions
+      operationId: searchPosts
+      tags:
+        - Search
+      parameters:
+        - name: q
+          in: query
+          description: Search query (searches title and content)
+          schema:
+            type: string
+          example: "fastapi tutorial"
+        - name: author_id
+          in: query
+          description: Filter by author ID
+          schema:
+            type: integer
+        - name: tags
+          in: query
+          description: Filter by tag names (comma-separated for multiple tags)
+          schema:
+            type: string
+          example: "python,fastapi,tutorial"
+        - name: status
+          in: query
+          description: Filter by status (authenticated users only for non-published)
+          schema:
+            type: string
+            enum: [draft, published, archived]
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum: [relevance, publication_date_desc, publication_date_asc, title_asc, title_desc]
+            default: relevance
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResultsResponse'
+              example:
+                items:
+                  - id: 1
+                    author:
+                      id: 5
+                      username: "johndoe"
+                      full_name: "John Doe"
+                    title: "Getting Started with FastAPI"
+                    excerpt: "Learn how to build production-ready APIs..."
+                    status: "published"
+                    publication_date: "2025-10-10T12:00:00Z"
+                    created_at: "2025-10-09T10:00:00Z"
+                    tags:
+                      - id: 1
+                        name: "python"
+                      - id: 2
+                        name: "fastapi"
+                    relevance_score: 0.95
+                pagination:
+                  page: 1
+                  page_size: 20
+                  total_items: 42
+                  total_pages: 3
+                  has_next: true
+                  has_previous: false
+        '422':
+          description: Validation error (e.g., invalid search query)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      security:
+        - BearerAuth: []
+        - {}
+
+components:
+  schemas:
+    SearchResultsResponse:
+      type: object
+      required:
+        - items
+        - pagination
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchResultItem'
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+
+    SearchResultItem:
+      type: object
+      required:
+        - id
+        - author
+        - title
+        - excerpt
+        - status
+        - publication_date
+        - tags
+      properties:
+        id:
+          type: integer
+        author:
+          $ref: '#/components/schemas/AuthorInfo'
+        title:
+          type: string
+        excerpt:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [draft, published, archived]
+        publication_date:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagInfo'
+        relevance_score:
+          type: number
+          format: float
+          description: Search relevance score (only when sorting by relevance)
+          nullable: true
+
+    AuthorInfo:
+      type: object
+      required:
+        - id
+        - username
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        full_name:
+          type: string
+          nullable: true
+
+    TagInfo:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+
+    PaginationInfo:
+      type: object
+      required:
+        - page
+        - page_size
+        - total_items
+        - total_pages
+      properties:
+        page:
+          type: integer
+        page_size:
+          type: integer
+        total_items:
+          type: integer
+        total_pages:
+          type: integer
+        has_next:
+          type: boolean
+        has_previous:
+          type: boolean
+
+    ValidationError:
+      type: object
+      required:
+        - error
+        - details
+        - request_id
+      properties:
+        error:
+          type: string
+        details:
+          type: array
+          items:
+            type: object
+        request_id:
+          type: string
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

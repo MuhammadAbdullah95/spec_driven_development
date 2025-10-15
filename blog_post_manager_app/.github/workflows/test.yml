@@ -1,0 +1,90 @@
+name: Tests
+
+on:
+  push:
+    branches: [ master, main, develop ]
+  pull_request:
+    branches: [ master, main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: blog_user
+          POSTGRES_PASSWORD: blog_password
+          POSTGRES_DB: blog_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install uv
+      run: pip install uv
+
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/uv
+        key: ${{ runner.os }}-uv-${{ hashFiles('**/pyproject.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-uv-
+
+    - name: Install dependencies
+      run: |
+        uv venv
+        source .venv/bin/activate
+        uv pip install -e ".[dev]"
+
+    - name: Run linting
+      run: |
+        source .venv/bin/activate
+        ruff check src/ tests/
+
+    - name: Run type checking
+      run: |
+        source .venv/bin/activate
+        mypy src/
+
+    - name: Set up database
+      env:
+        DATABASE_URL: postgresql+asyncpg://blog_user:blog_password@localhost:5432/blog_db
+      run: |
+        source .venv/bin/activate
+        alembic upgrade head
+
+    - name: Run tests with coverage
+      env:
+        DATABASE_URL: postgresql+asyncpg://blog_user:blog_password@localhost:5432/blog_db
+        JWT_SECRET_KEY: test-secret-key-for-ci
+        ENVIRONMENT: test
+      run: |
+        source .venv/bin/activate
+        pytest tests/ -v --cov=src --cov-report=xml --cov-report=term-missing
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        fail_ci_if_error: false
+        verbose: true
+
+    - name: Check coverage threshold
+      run: |
+        source .venv/bin/activate
+        coverage report --fail-under=85

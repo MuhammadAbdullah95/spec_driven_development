@@ -1,0 +1,461 @@
+openapi: 3.0.3
+info:
+  title: Blog Management API - Posts
+  version: 1.0.0
+  description: CRUD operations for blog posts
+
+paths:
+  /api/v1/posts:
+    get:
+      summary: List posts with pagination
+      description: Retrieve paginated list of posts (public posts for unauthenticated, all own posts for authenticated authors)
+      operationId: listPosts
+      tags:
+        - Posts
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: status
+          in: query
+          description: Filter by status (authenticated users only for draft/archived)
+          schema:
+            type: string
+            enum: [draft, published, archived]
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum: [publication_date_desc, publication_date_asc, title_asc, title_desc, created_at_desc]
+            default: publication_date_desc
+      responses:
+        '200':
+          description: List of posts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostListResponse'
+        '401':
+          description: Unauthorized (invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - BearerAuth: []
+        - {}  # Allow unauthenticated access
+
+    post:
+      summary: Create new post
+      description: Create a new blog post (authenticated authors only)
+      operationId: createPost
+      tags:
+        - Posts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostCreateRequest'
+            example:
+              title: "Getting Started with FastAPI"
+              content: "FastAPI is a modern, fast web framework for building APIs with Python..."
+              excerpt: "Learn how to build production-ready APIs with FastAPI"
+              tags: ["python", "fastapi", "tutorial"]
+      responses:
+        '201':
+          description: Post created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+              example:
+                error: "Validation failed"
+                details:
+                  - loc: ["body", "title"]
+                    msg: "Title must be between 1 and 200 characters"
+                    type: "value_error"
+                  - loc: ["body", "tags"]
+                    msg: "A post cannot have more than 10 tags"
+                    type: "value_error"
+                request_id: "req_12345abcde"
+      security:
+        - BearerAuth: []
+
+  /api/v1/posts/{post_id}:
+    get:
+      summary: Get post by ID
+      description: Retrieve single post details
+      operationId: getPost
+      tags:
+        - Posts
+      parameters:
+        - name: post_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Post details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostResponse'
+        '404':
+          description: Post not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Post not found"
+                details: {}
+                request_id: "req_12345abcde"
+        '403':
+          description: Forbidden (draft post not owned by user)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - BearerAuth: []
+        - {}
+
+    patch:
+      summary: Update post
+      description: Update existing post (author only)
+      operationId: updatePost
+      tags:
+        - Posts
+      parameters:
+        - name: post_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostUpdateRequest'
+            example:
+              title: "Getting Started with FastAPI - Updated"
+              status: "published"
+      responses:
+        '200':
+          description: Post updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostResponse'
+        '403':
+          description: Forbidden (not post author)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "You do not have permission to edit this post"
+                details: {}
+                request_id: "req_12345abcde"
+        '404':
+          description: Post not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+      security:
+        - BearerAuth: []
+
+    delete:
+      summary: Delete post
+      description: Delete post (author only)
+      operationId: deletePost
+      tags:
+        - Posts
+      parameters:
+        - name: post_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Post deleted successfully
+        '403':
+          description: Forbidden (not post author)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Post not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - BearerAuth: []
+
+components:
+  schemas:
+    PostCreateRequest:
+      type: object
+      required:
+        - title
+        - content
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        content:
+          type: string
+          minLength: 10
+        excerpt:
+          type: string
+          maxLength: 500
+          nullable: true
+        tags:
+          type: array
+          items:
+            type: string
+          maxItems: 10
+          default: []
+
+    PostUpdateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        content:
+          type: string
+          minLength: 10
+        excerpt:
+          type: string
+          maxLength: 500
+          nullable: true
+        status:
+          type: string
+          enum: [draft, published, archived]
+        tags:
+          type: array
+          items:
+            type: string
+          maxItems: 10
+
+    PostResponse:
+      type: object
+      required:
+        - id
+        - author
+        - title
+        - content
+        - status
+        - created_at
+        - updated_at
+        - tags
+      properties:
+        id:
+          type: integer
+        author:
+          $ref: '#/components/schemas/AuthorInfo'
+        title:
+          type: string
+        content:
+          type: string
+        excerpt:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [draft, published, archived]
+        publication_date:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagInfo'
+
+    AuthorInfo:
+      type: object
+      required:
+        - id
+        - username
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        full_name:
+          type: string
+          nullable: true
+
+    TagInfo:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+
+    PostListResponse:
+      type: object
+      required:
+        - items
+        - pagination
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PostSummary'
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+
+    PostSummary:
+      type: object
+      required:
+        - id
+        - author
+        - title
+        - excerpt
+        - status
+        - publication_date
+        - tags
+      properties:
+        id:
+          type: integer
+        author:
+          $ref: '#/components/schemas/AuthorInfo'
+        title:
+          type: string
+        excerpt:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [draft, published, archived]
+        publication_date:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagInfo'
+
+    PaginationInfo:
+      type: object
+      required:
+        - page
+        - page_size
+        - total_items
+        - total_pages
+      properties:
+        page:
+          type: integer
+          description: Current page number
+        page_size:
+          type: integer
+          description: Items per page
+        total_items:
+          type: integer
+          description: Total number of items
+        total_pages:
+          type: integer
+          description: Total number of pages
+        has_next:
+          type: boolean
+        has_previous:
+          type: boolean
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - details
+        - request_id
+      properties:
+        error:
+          type: string
+        details:
+          type: object
+        request_id:
+          type: string
+
+    ValidationError:
+      type: object
+      required:
+        - error
+        - details
+        - request_id
+      properties:
+        error:
+          type: string
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              loc:
+                type: array
+                items:
+                  type: string
+              msg:
+                type: string
+              type:
+                type: string
+        request_id:
+          type: string
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
