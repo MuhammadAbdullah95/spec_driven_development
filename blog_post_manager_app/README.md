@@ -2,6 +2,9 @@
 
 **Production-ready FastAPI blog management system with authentication, search, and tagging**
 
+> 🎯 **Built with [SpecKit](https://github.com/github/spec-kit)** - This entire project was created in ~45 minutes using 5 SpecKit commands!
+> 📖 **[See how to recreate it →](SPECKIT_GUIDE.md)**
+
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)](https://fastapi.tiangolo.com)
 [![Tests](https://img.shields.io/badge/tests-88%20passing-brightgreen.svg)](#testing)
@@ -61,7 +64,17 @@ This entire application was built using SpecKit slash commands:
 
 **Result:** A production-ready application with comprehensive testing, documentation, and deployment infrastructure - all built systematically!
 
-[Learn how to recreate this project ↓](#recreate-this-project)
+### 🎓 Want to Build This Yourself?
+
+<div align="center">
+
+**📖 [Complete SpecKit Tutorial →](SPECKIT_GUIDE.md)**
+
+**⚡ [Quick Start Commands →](SPECKIT_COMMANDS.md)**
+
+**🔄 [Step-by-Step Recreation →](#recreate-this-project)**
+
+</div>
 
 ---
 
@@ -292,14 +305,59 @@ After running these 5 commands, you'll have:
 - **With SpecKit**: ~30-45 minutes (mostly automated)
 - **Manual coding**: 20-30 hours (traditional approach)
 
-### Learn More About SpecKit
+### 📚 SpecKit Resources
 
-- **⚡ Quick Reference**: [SPECKIT_COMMANDS.md](SPECKIT_COMMANDS.md) - Copy-paste commands
-- **📖 Complete Guide**: [SPECKIT_GUIDE.md](SPECKIT_GUIDE.md) - Comprehensive tutorial
-- **🌐 GitHub**: https://github.com/github/spec-kit - Official repository
-- **📚 Documentation**: https://github.com/github/spec-kit - Official docs
-- **📁 Examples**: See `.specify/` directory in this repo - Actual files used
-- **💬 Community**: Share your SpecKit projects and learn from others
+| Resource | Description | Link |
+|----------|-------------|------|
+| ⚡ **Quick Start** | Copy-paste commands to recreate this project | [SPECKIT_COMMANDS.md](SPECKIT_COMMANDS.md) |
+| 📖 **Complete Tutorial** | In-depth guide to Spec-Driven Development | [SPECKIT_GUIDE.md](SPECKIT_GUIDE.md) |
+| 🌐 **Official Repository** | SpecKit GitHub repo | [github.com/github/spec-kit](https://github.com/github/spec-kit) |
+| 📁 **Live Examples** | Actual spec files used to build this project | [.specify/](.specify/) directory |
+| 💬 **Community** | Share your SpecKit projects | Join discussions |
+
+**👉 Start here:** [SPECKIT_GUIDE.md](SPECKIT_GUIDE.md) for a comprehensive walkthrough!
+
+---
+
+### 🚀 Ready to Build Your Own?
+
+<details>
+<summary><b>📋 Click to see the exact commands used to build this project</b></summary>
+
+<br>
+
+Copy and paste these 5 commands into Claude Code:
+
+#### 1. Define Principles
+```
+/speckit.constitution Create principles for a production-ready FastAPI blog management system focusing on: RESTful API design with clear resource naming and HTTP method usage, comprehensive input validation and error handling, database normalization and referential integrity, automated testing with high coverage standards, secure authentication and authorization patterns, efficient query performance and pagination strategies, clear API documentation with OpenAPI standards, containerization best practices with minimal image sizes, and scalable deployment architecture for cloud-native environments
+```
+
+#### 2. Write Specification
+```
+/speckit.specify Build a blog post management application where users can create, read, update, and delete blog posts. Each blog post has a title, content body, excerpt/summary, publication status (draft, published, archived), publication date, author information, and multiple tags for categorization. Users should be able to filter posts by status, tags, and author, search posts by title or content, sort posts by publication date or title, and retrieve paginated lists of posts. The application needs user authentication where authors can only edit or delete their own posts, but all published posts are publicly readable. Each post can have multiple tags, and tags can be reused across different posts. The system should track creation and modification timestamps for all posts and provide meaningful validation messages for all operations.
+```
+
+#### 3. Design Architecture
+```
+/speckit.plan The application uses FastAPI framework with Python 3.11+, uv as the package manager for fast dependency management and virtual environment handling, PostgreSQL as the relational database with proper indexing on frequently queried fields, SQLAlchemy ORM for database operations with relationship management for posts-tags many-to-many association, Alembic for database migrations with version control, Pydantic V2 for request/response validation and serialization, JWT tokens with refresh token mechanism for authentication, bcrypt for password hashing, pytest with pytest-asyncio for comprehensive testing including unit and integration tests, SQLAlchemy test fixtures for database testing, Docker for containerization using multi-stage builds with uv for faster dependency installation and minimal image size, docker-compose for local development environment with PostgreSQL service, and Kubernetes for production deployment with separate manifests for deployment, service, configmap, and secrets. Include health check endpoints, CORS middleware configuration, rate limiting, and structured logging with correlation IDs. Use pyproject.toml for dependency management with uv.
+```
+
+#### 4. Generate Tasks
+```
+/speckit.tasks
+```
+
+#### 5. Execute Implementation
+```
+/speckit.implement
+```
+
+**That's it!** In ~45 minutes, you'll have this entire production-ready application.
+
+📖 **Detailed explanation:** [SPECKIT_GUIDE.md](SPECKIT_GUIDE.md)
+
+</details>
 
 ---
 
