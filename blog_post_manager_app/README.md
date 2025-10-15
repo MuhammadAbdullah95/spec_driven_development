@@ -151,7 +151,8 @@ This entire application was built using SpecKit slash commands:
 ### 1. Clone Repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/MuhammadAbdullah95/spec_driven_development.git
+cd spec_driven_development
 cd blog_post_manager_app
 ```
 
