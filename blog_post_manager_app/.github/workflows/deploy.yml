@@ -1,0 +1,99 @@
+name: Deploy to Kubernetes
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      image_tag:
+        description: 'Docker image tag to deploy'
+        required: true
+        default: 'latest'
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.28.0'
+
+    - name: Configure kubectl
+      env:
+        KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+      run: |
+        mkdir -p $HOME/.kube
+        echo "$KUBE_CONFIG" | base64 -d > $HOME/.kube/config
+        chmod 600 $HOME/.kube/config
+
+    - name: Verify cluster connection
+      run: |
+        kubectl cluster-info
+        kubectl get nodes
+
+    - name: Update deployment image
+      env:
+        NAMESPACE: blog-api-${{ github.event.inputs.environment }}
+        IMAGE_TAG: ${{ github.event.inputs.image_tag }}
+      run: |
+        kubectl set image deployment/blog-api \
+          blog-api=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$IMAGE_TAG \
+          -n $NAMESPACE
+
+    - name: Wait for rollout
+      env:
+        NAMESPACE: blog-api-${{ github.event.inputs.environment }}
+      run: |
+        kubectl rollout status deployment/blog-api -n $NAMESPACE --timeout=5m
+
+    - name: Verify deployment
+      env:
+        NAMESPACE: blog-api-${{ github.event.inputs.environment }}
+      run: |
+        kubectl get pods -n $NAMESPACE
+        kubectl get deployment blog-api -n $NAMESPACE
+
+    - name: Run smoke tests
+      env:
+        NAMESPACE: blog-api-${{ github.event.inputs.environment }}
+      run: |
+        # Get the service URL
+        SERVICE_URL=$(kubectl get ingress blog-api-ingress -n $NAMESPACE -o jsonpath='{.spec.rules[0].host}')
+
+        # Health check
+        echo "Running health check on https://$SERVICE_URL/health"
+        curl -f https://$SERVICE_URL/health || exit 1
+
+        # API docs check
+        echo "Checking API docs at https://$SERVICE_URL/docs"
+        curl -f https://$SERVICE_URL/docs || exit 1
+
+        echo "Smoke tests passed!"
+
+    - name: Notify deployment status
+      if: always()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        text: |
+          Deployment to ${{ github.event.inputs.environment }} ${{ job.status }}
+          Image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.image_tag }}
+          Environment: ${{ github.event.inputs.environment }}
+        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}

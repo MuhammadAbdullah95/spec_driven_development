@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: blog-api
+  labels:
+    name: blog-api
+    environment: production
